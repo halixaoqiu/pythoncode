@@ -4,6 +4,7 @@
 Created on 2014年12月3日
 @author: qiu.lin
 '''
+import sys
 import pexpect
 
 def ssh_cmd(ip,user,pwd,cmd):
@@ -18,10 +19,7 @@ def ssh_cmd(ip,user,pwd,cmd):
             ssh.sendline('yes\n')
             ssh.expect('password: ')
             ssh.sendline(pwd)
-        if cmd=='1':
-            ssh_cmd('10.1.102.147', 'qiu.lin', 'linqiu1987', 'ls')
-        else:
-            ssh.sendline(cmd)
+        ssh.sendline(cmd)
         r = ssh.read()
         ret = 0
     except pexpect.EOF:
@@ -34,15 +32,33 @@ def ssh_cmd(ip,user,pwd,cmd):
         ssh.close()
     return r,ret
 
-hosts = '''192.168.8.172:qiu.lin:linqiu1987:1'''
+hosts = '''192.168.8.172:qiu.lin:linqiu1987:ls'''
 
-for host in hosts.split("/n"):
-    if host:
-        ip,user,passwd,cmds = host.split(":")
-        for cmd in cmds.split(","):
-            print "-- %s run:%s --" % (ip, cmd)
-            r,ret = ssh_cmd(ip, user, passwd, cmd)
-            print r
-            print ret
+def main():
+    args = sys.argv
+    if len(args)==3:
+        host_file = args[1]
+        cmd = args[2]
+        f = open(host_file)
+        host = f.readline()
+        while host:
+            print host
+            #执行命令，在while外面需要先拿到用户名密码
+            f.readline()
+        f.close()
+    else:
+        print 'illegal cmd arguments'
+
+if __name__ == '__main__':
+    main()
+
+# for host in hosts.split("/n"):
+#     if host:
+#         ip,user,passwd,cmds = host.split(":")
+#         for cmd in cmds.split(","):
+#             print "-- %s run:%s --" % (ip, cmd)
+#             r,ret = ssh_cmd(ip, user, passwd, cmd)
+#             print r
+#             print ret
 
 
