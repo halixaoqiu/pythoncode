@@ -6,6 +6,7 @@ Created on 2014年12月3日
 '''
 import sys
 import pexpect
+import getpass
 
 def ssh_cmd(ip,user,pwd,cmd):
     ssh = pexpect.spawn('ssh %s@%s "%s"' %(user, ip, cmd))
@@ -39,15 +40,17 @@ def main():
     if len(args)==3:
         host_file = args[1]
         cmd = args[2]
-        f = open(host_file)
-        host = f.readline()
-        while host:
-            print host
-            #执行命令，在while外面需要先拿到用户名密码
-            f.readline()
-        f.close()
+        user = raw_input("username:")
+        pwd = getpass.getpass('password:')
+        for line in open(host_file):
+            host=line.strip('\n')
+            if host:
+                print "-- %s run:%s --" % (host, cmd)
+                r,ret = ssh_cmd(host, user, pwd, cmd)
+                print r
+                print ret
     else:
-        print 'illegal cmd arguments'
+        print 'illegal script arguments'
 
 if __name__ == '__main__':
     main()
